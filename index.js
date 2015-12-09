@@ -109,7 +109,7 @@ const downloadedDocument$ = renderableDocuments$
     function runRenderer(data){
       let {fileName,outputPath} = data
         //const cmd = `node ../Jam/dist/jam-headless.js --model ${outputPath} --resolution ${resolution}` 
-        const cmd = `node ../Jam/dist/jam-headless.js ${outputPath} ${resolution}` 
+        const cmd = `node ./node_modules/jam/dist/jam-headless.js ${outputPath} ${resolution}` 
 
         exec(cmd, function(error, stdout, stderr) {
           // command output is in stdout
