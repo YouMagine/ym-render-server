@@ -3,7 +3,10 @@
   "version": "0.0.1",
   "description": "",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "start": "forever start launch-server.js",
+    "stop": "forever stop launch-server.js"
+  },
   "author": "Mark 'kaosat-dev' Moissette",
   "license": "MIT",
   "dependencies": {
@@ -12,6 +15,7 @@
     "body-parser": "^1.14.1",
     "express": "^4.13.3",
     "fast.js": "^0.1.1",
+    "forever": "^0.15.1",
     "jam": "usco/Jam#headlessRender",
     "most-subject": "tylors/most-subject",
     "request": "^2.67.0"
