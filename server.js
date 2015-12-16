@@ -39,8 +39,8 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 app.post('/', function (req, res) {
   if (!req.body) return res.sendStatus(400)
-
-  //console.log("req.body",req.body, req.body.documentId, req.body.designId)
+  console.log(req.headers)
+  console.log("req.body",req.body, req.body.documentId, req.body.designId)
   
   let {resolution,documentId,designId} = req.body
   //console.log("resolution etc",resolution, documentId, designId)
@@ -50,7 +50,8 @@ app.post('/', function (req, res) {
     if(!resolution){
       resolution = "1200x900"
     }
-    const cmd = `node launch.js resolution=${resolution} designId=${designId} documentId=${documentId} workdir='./tmp' fileName='test.stl'`
+    //const cmd = `node launch.js resolution=${resolution} designId=${designId} documentId=${documentId} workdir='./tmp' fileName='test.stl'`
+    const cmd = `xvfb-run -s "-ac -screen 0 ${resolution}x24" node launch.js resolution=${resolution} designId=${designId} documentId=${documentId}  workdir='./tmp' fileName='test.stl'`
     //RUN THE RENDERING
     console.log("launching",cmd)
     run(cmd)
