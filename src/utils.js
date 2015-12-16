@@ -3,6 +3,8 @@ import request from 'request'
 
 import fs from 'fs'
 import url from 'url'
+import path from 'path'
+
 const exec = require('child_process').exec
 const spawn = require('child_process').spawn
 
@@ -31,11 +33,39 @@ export function run(cmd){
     }
     else{
       sink.add(stdout)
+      sink.end()
     }
   }) 
 
   return stream
 }
+
+
+export function saveFile(workdir, fileUrl, fileName){
+      const {sink, stream} = Subject()
+
+      let urlData    = url.parse( fileUrl )
+
+      console.log("here2",fileName)
+
+      if(fileName === undefined){
+        fileName   = path.basename(urlData.pathname)
+      }
+      let outputPath = path.join(workdir,fileName)
+      
+      let file = fs.createWriteStream(outputPath)
+      let r = request(fileUrl).pipe(file)
+
+      /*file.once('close',function(e){
+        console.log("file done",e)
+      })*/
+
+      file.once('finish',function(e){
+        //console.log("file done")
+        sink.add({fileName,outputPath})
+      })
+      return stream
+    }
 
 
 export function download_file_wget (file_url, download_dir) {

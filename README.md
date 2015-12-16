@@ -21,3 +21,12 @@ you also have a few parameters to control the output:
 
 
           node launch.js resolution=1024x768 page=1 limit=1 workdir=./foo
+
+
+
+server mode (default port is 3210)
+
+
+```
+  node launch-server.js
+```

@@ -3,13 +3,14 @@
   "version": "0.0.1",
   "description": "",
   "main": "index.js",
-  "scripts": {
-  },
+  "scripts": {},
   "author": "Mark 'kaosat-dev' Moissette",
   "license": "MIT",
   "dependencies": {
     "babel-core": "^6.2.1",
     "babel-preset-es2015": "^6.1.18",
+    "body-parser": "^1.14.1",
+    "express": "^4.13.3",
     "fast.js": "^0.1.1",
     "jam": "usco/Jam#headlessRender",
     "most-subject": "tylors/most-subject",
