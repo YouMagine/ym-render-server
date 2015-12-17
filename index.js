@@ -25,7 +25,7 @@ let params = getArgs()
 
 //const designsUri =  "https://api.youmagine.com/v1/designs?auth_token=X5Ax97m1YomoFLxtYTzb"
 //const documentsUri = 'https://api.youmagine.com/v1/designs/9920/documents?auth_token=X5Ax97m1YomoFLxtYTzb'
-const apiBaseProdUri     = 'api.youmagine.com/v1'
+const apiBaseProdUri = 'api.youmagine.com/v1'
 const apiBaseTestUri = 'api-test.youmagine.com/v1'
 
 const defaults = {
@@ -104,9 +104,12 @@ const downloadedDocument$ = renderableDocuments$
           else{
             //RUN post process
             let ppCmd = `convert ${outputPath}.png -colorspace gray -level-colors "black,#FF0000" -define modulate:colorspace=HSB -modulate 100,200,108 ${outputPath}.png` 
-            //console.log("cmd",ppCmd)
-
             run(ppCmd)
+
+            //FIXME: temporary hack
+            let ppCropCmd = `convert ${outputPath}.png -crop +0+1 ${outputPath}.png`
+            run(ppCropCmd)
+
           }
 
         }) 

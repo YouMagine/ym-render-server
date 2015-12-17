@@ -42,7 +42,6 @@ params = assign({},defaults,params)
 const {port, testMode, login, password} = params
 
 
-
 /////////////////
 
 let app = express()
@@ -70,6 +69,8 @@ app.post('/', function (req, res) {
       resolution = "1200x900"
     }
 
+    //FIXME: this is a hack to solve the "on pixel of garbage on top"
+    //resolution = resolution.slice(0,-1) + '1'
 
     let authData = '' 
     if(testMode && login && password){
@@ -80,8 +81,9 @@ app.post('/', function (req, res) {
       ${authData} workdir='./tmp' fileName='test.stl'`
 
     //const cmd = `node launch.js resolution=${resolution} designId=${designId} documentId=${documentId} workdir='./tmp' fileName='test.stl'`
-    //const cmd = `xvfb-run -s "-ac -screen 0 ${resolution}x24" ${mainCmd}`
-    const cmd = `${mainCmd}`
+    const cmd = `xvfb-run -s "-ac -screen 0 ${resolution}x24" ${mainCmd}`
+    //const cmd = `${mainCmd}`
+
 
     //RUN THE RENDERING
     console.log("launching",cmd)
