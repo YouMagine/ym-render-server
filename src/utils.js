@@ -8,6 +8,22 @@ import path from 'path'
 const exec = require('child_process').exec
 const spawn = require('child_process').spawn
 
+
+export function getArgs(){
+  let args = process.argv.slice(2)
+
+  let params = {}
+  if(args.length>0){
+    params = args.reduce(function(combo,cur){
+      let [name,val]= cur.split("=")
+      combo[name] = val
+      return combo
+    },{})
+  }
+  return params
+}
+
+
 export function makeRequest(uri){
   const {sink, stream} = Subject()
 
@@ -46,13 +62,12 @@ export function saveFile(workdir, fileUrl, fileName){
 
       let urlData    = url.parse( fileUrl )
 
-      console.log("here2",fileName)
 
       if(fileName === undefined){
-        fileName   = path.basename(urlData.pathname)
+        fileName = path.basename(urlData.pathname)
       }
       let outputPath = path.join(workdir,fileName)
-      
+
       let file = fs.createWriteStream(outputPath)
       let r = request(fileUrl).pipe(file)
 

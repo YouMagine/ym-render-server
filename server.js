@@ -1,10 +1,10 @@
-const PORT=3210
 import fs from 'fs'
 import path from 'path'
 
 import express from 'express'
 import bodyParser from 'body-parser'
-import {run} from './src/utils'
+import assign from 'fast.js/object/assign'//faster object.assign
+import {run, getArgs} from './src/utils'
 
 function sendBackFile(response, filePath){
   let fullPath = path.resolve(filePath)
@@ -26,6 +26,25 @@ function sendBackFile(response, filePath){
   readStream.pipe(response)
 }
 
+////////////////////////
+
+/////////deal with command line args etc
+let params = getArgs()
+
+const defaults = {
+  port : 3210
+  ,testMode:undefined
+  ,login:undefined
+  ,password:undefined
+}
+params = assign({},defaults,params)
+
+const {port, testMode, login, password} = params
+
+
+
+/////////////////
+
 let app = express()
 
 
@@ -40,7 +59,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.post('/', function (req, res) {
   if (!req.body) return res.sendStatus(400)
   console.log(req.headers)
-  console.log("req.body",req.body, req.body.documentId, req.body.designId)
+  //console.log("req.body",req.body, req.body.documentId, req.body.designId)
   
   let {resolution,documentId,designId} = req.body
   //console.log("resolution etc",resolution, documentId, designId)
@@ -50,8 +69,20 @@ app.post('/', function (req, res) {
     if(!resolution){
       resolution = "1200x900"
     }
+
+
+    let authData = '' 
+    if(testMode && login && password){
+      authData = `testMode=${testMode} login=${login} password=${password}`
+    } 
+    
+    const mainCmd = `node launch.js resolution=${resolution} designId=${designId} documentId=${documentId} \
+      ${authData} workdir='./tmp' fileName='test.stl'`
+
     //const cmd = `node launch.js resolution=${resolution} designId=${designId} documentId=${documentId} workdir='./tmp' fileName='test.stl'`
-    const cmd = `xvfb-run -s "-ac -screen 0 ${resolution}x24" node launch.js resolution=${resolution} designId=${designId} documentId=${documentId}  workdir='./tmp' fileName='test.stl'`
+    //const cmd = `xvfb-run -s "-ac -screen 0 ${resolution}x24" ${mainCmd}`
+    const cmd = `${mainCmd}`
+
     //RUN THE RENDERING
     console.log("launching",cmd)
     run(cmd)
@@ -75,7 +106,7 @@ app.post('/', function (req, res) {
 })
 
 
-let server = app.listen(PORT, function () {
+let server = app.listen(port, function () {
   let host = server.address().address;
   let port = server.address().port;
 

@@ -16,7 +16,7 @@
     "express": "^4.13.3",
     "fast.js": "^0.1.1",
     "forever": "^0.15.1",
-    "jam": "usco/Jam#headlessRender",
+    "jam": "usco/Jam",
     "most-subject": "tylors/most-subject",
     "request": "^2.67.0"
   }
