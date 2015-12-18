@@ -4,7 +4,7 @@
 import fs from 'fs'
 import most from 'most'
 import assign from 'fast.js/object/assign'//faster object.assign
-import {from} from 'most'
+import {from, throwError} from 'most'
 import Subject from './src/subject/subject'
 
 import path from 'path'
@@ -23,8 +23,6 @@ console.log("fetching documents of designs to render")
 let params = getArgs()
 
 
-//const designsUri =  "https://api.youmagine.com/v1/designs?auth_token=X5Ax97m1YomoFLxtYTzb"
-//const documentsUri = 'https://api.youmagine.com/v1/designs/9920/documents?auth_token=X5Ax97m1YomoFLxtYTzb'
 const apiBaseProdUri = 'api.youmagine.com/v1'
 const apiBaseTestUri = 'api-test.youmagine.com/v1'
 
@@ -66,7 +64,6 @@ let authData   = (login !== undefined && password!==undefined) ? (`${login}:${pa
 let documents$ = undefined
 if(params.documentId &&  params.designId){
   let documentsUri = `https://${authData}${apiBaseUri}/designs/${params.designId}/documents/${params.documentId}?auth_token=X5Ax97m1YomoFLxtYTzb`
-  console.log("documentsUri",documentsUri)
   documents$ = makeRequest(documentsUri)
 }else{
 
@@ -79,6 +76,7 @@ if(params.documentId &&  params.designId){
     .flatMap( documents => from(documents) )//array of documents to documents one by one "down the pipe" 
 }
 
+//filter documents to find those that are renderable
 const renderableDocuments$ =  documents$
   .filter(doc=>doc.file_contains_3d_model === true)
   .map(doc=>{
@@ -87,39 +85,33 @@ const renderableDocuments$ =  documents$
   .tap(e=>console.log("documents",e))
   
 
-const downloadedDocument$ = renderableDocuments$
+//do the rendering etc
+renderableDocuments$
   .map(function(doc){
       
-    function runRenderer(data){
+    function render(data){
       let {fileName,outputPath} = data
-        //const cmd = `node ../Jam/dist/jam-headless.js --model ${outputPath} --resolution ${resolution}` 
-        const cmd = `node ./node_modules/jam/dist/jam-headless.js ${outputPath} ${resolution}` 
+      const cmd = `node ./node_modules/jam/dist/jam-headless.js ${outputPath} ${resolution}` 
 
-        exec(cmd, function(error, stdout, stderr) {
-          // command output is in stdout
-          console.log(stdout)
-          if(error){
-            console.log("error in  renderer",error, stdout, stderr)
-          }
-          else{
-            //RUN post process
-            let ppCmd = `convert ${outputPath}.png -colorspace gray -level-colors "black,#FF0000" -define modulate:colorspace=HSB -modulate 100,200,108 ${outputPath}.png` 
-            run(ppCmd)
-
-            //FIXME: temporary hack
-            let ppCropCmd = `convert ${outputPath}.png -crop +0+1 ${outputPath}.png`
-            run(ppCropCmd)
-
-          }
-
-        }) 
+      return run(cmd)
+        .flatMapError(e=>throwError("error in  renderer",e))
+        .flatMap(postProcess.bind(null,outputPath))        
     }
 
-    saveFile(workdir, doc.url, params.fileName)
-      //.tap(e=>console.log("file saved",e))
-      .tap(runRenderer)
+    function postProcess(outputPath){
+      let ppCmd = `convert ${outputPath}.png -colorspace gray -level-colors "black,#FF0000" -define modulate:colorspace=HSB -modulate 100,200,108 ${outputPath}.png` 
+      let ppCropCmd = `convert ${outputPath}.png -crop +0+1 ${outputPath}.png`
+
+      return run(ppCmd)
+        .flatMap(e=>run(ppCropCmd))
+    }
+
+    return saveFile(workdir, doc.url, params.fileName)
+      .flatMap(render)
       .forEach(e=>e)
+      .then(e=>console.log("done"))
        
   })
   .forEach(e=>e)
+  
 

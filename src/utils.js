@@ -76,8 +76,8 @@ export function saveFile(workdir, fileUrl, fileName){
       })*/
 
       file.once('finish',function(e){
-        //console.log("file done")
         sink.add({fileName,outputPath})
+        sink.end()
       })
       return stream
     }
