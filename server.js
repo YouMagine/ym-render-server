@@ -5,11 +5,12 @@ import express from 'express'
 import bodyParser from 'body-parser'
 
 import assign from 'fast.js/object/assign'//faster object.assign
+import tmp from 'tmp'
+
 import {run, getArgs} from './src/utils'
-import which  from 'which'
 import {appInPath} from './src/appPath'
 
-function sendBackFile(response, filePath){
+function sendBackFile(workdir, response, filePath){
   let fullPath = path.resolve(filePath)
   console.log("sending back image data",fullPath)
   let stat = fs.statSync(fullPath)
@@ -20,11 +21,19 @@ function sendBackFile(response, filePath){
   })
 
   let readStream = fs.createReadStream(filePath)
+  /*readStream.on('finish',function(){
+    console.log("done streaming")
+  })*///does not work
 
   // Add this to ensure that the file descriptor is closed in case of error.
   response.on('error', function(err) {
     readStream.end()
   })
+
+  /*response.on('finish', function(){
+    console.log("done with response, removing folder", workdir)
+    fs.rmdirSync(workdir)
+  })*/
 
   readStream.pipe(response)
 }
@@ -74,18 +83,22 @@ app.post('/', function (req, res) {
     if(testMode && login && password){
       authData = `testMode=${testMode} login=${login} password=${password}`
     } 
+
+    //dir:'./tmp',prefix:'render', 
+    let workdirBase = './tmp'
+    if (!fs.existsSync(workdirBase)){
+      fs.mkdirSync(workdirBase)
+    }
+
+    let workdir  = tmp.dirSync({template: './tmp/render-XXXXXX'})
     
     const mainCmd = `node launch.js resolution=${resolution} designId=${designId} documentId=${documentId} \
-      ${authData} workdir='./tmp' fileName='test.stl'`
-
-
-
+      ${authData} workdir=${workdir.name} fileName='test.stl'`
 
     //const cmd = `node launch.js resolution=${resolution} designId=${designId} documentId=${documentId} workdir='./tmp' fileName='test.stl'`
     //RUN THE RENDERING
 
     appInPath('xvfb-run')
-      .tap(e=>console.log("is it in path",e))
       .map(xvfb=>{
         return xvfb === true ? `xvfb-run -s "-ac -screen 0 ${resolution}x24" ${mainCmd}` : `${mainCmd}`
       })
@@ -94,16 +107,19 @@ app.post('/', function (req, res) {
       .drain()
       .then(function(e){
         console.log("done with render",e)
-        const filePath = './tmp/test.stl.png'
-        sendBackFile(res, filePath)
+        const filePath = `./${workdir.name}/test.stl.png`
+        sendBackFile(workdir.name, res, filePath)
+      })
+      .catch(function(error){
+        console.log("error rendering document",error)
+        res.status(500).send(error)
       })
 
     
   }
   else{
     console.log("lacking document/designId")
-    res.send("lacking document/designId")
-    res.sendStatus(500)
+    res.status(500).send("lacking document/designId")
   }
   
   
@@ -114,5 +130,5 @@ let server = app.listen(port, function () {
   let host = server.address().address;
   let port = server.address().port;
 
-  console.log('Example app listening at http://%s:%s', host, port);
+  console.log('Renderer listening at http://%s:%s', host, port);
 })

@@ -82,13 +82,13 @@ const renderableDocuments$ =  documents$
   .map(doc=>{
     return {url:doc.file.url,id:doc.id}
   })
-  .tap(e=>console.log("documents",e))
   
 
 //do the rendering etc
 renderableDocuments$
+  .tap(doc=>console.log("going to render document",doc))
   .map(function(doc){
-      
+
     function render(data){
       let {fileName,outputPath} = data
       const cmd = `node ./node_modules/jam/dist/jam-headless.js ${outputPath} ${resolution}` 
