@@ -8,6 +8,7 @@ import assign from 'fast.js/object/assign'//faster object.assign
 import tmp from 'tmp'
 
 import {run, getArgs} from './src/utils'
+import rmDir from './src/rmDir'
 import {appInPath} from './src/appPath'
 
 function sendBackFile(workdir, response, filePath){
@@ -30,10 +31,10 @@ function sendBackFile(workdir, response, filePath){
     readStream.end()
   })
 
-  /*response.on('finish', function(){
+  response.on('finish', function(){
     console.log("done with response, removing folder", workdir)
-    fs.rmdirSync(workdir)
-  })*/
+    rmDir(workdir)
+  })
 
   readStream.pipe(response)
 }
@@ -91,6 +92,8 @@ app.post('/', function (req, res) {
     }
 
     let workdir  = tmp.dirSync({template: './tmp/render-XXXXXX'})
+    //let workName = tmp.tmpNameSync({ template: 'tmp-XXXXXX.stl' })
+    //console.log("workName",workName)
     
     const mainCmd = `node launch.js resolution=${resolution} designId=${designId} documentId=${documentId} \
       ${authData} workdir=${workdir.name} fileName='test.stl'`
