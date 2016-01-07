@@ -25,6 +25,7 @@ let params = getArgs()
 
 const apiBaseProdUri = 'api.youmagine.com/v1'
 const apiBaseTestUri = 'api-test.youmagine.com/v1'
+const handledFormats = ['stl']
 
 const defaults = {
   resolution:'640x480'
@@ -74,15 +75,55 @@ if(params.documentId &&  params.designId){
       return makeRequest(documentsUri)
     })
     .flatMap( documents => from(documents) )//array of documents to documents one by one "down the pipe" 
+    .filter(doc=>doc.file_contains_3d_model === true)
 }
+
+
+function CleanError (msg) {
+  Error.call(this)
+
+  // By default, V8 limits the stack trace size to 10 frames.
+  Error.stackTraceLimit = 1
+
+  // Customizing stack traces
+  Error.prepareStackTrace = function (err, stack) {
+    return ''
+  };
+
+  Error.captureStackTrace(this)
+
+  this.message = msg
+  this.name = 'CleanError'
+}
+
+CleanError.prototype.__proto__ = Error.prototype
+
 
 //filter documents to find those that are renderable
 const renderableDocuments$ =  documents$
-  .filter(doc=>doc.file_contains_3d_model === true)
-  .map(doc=>{
-    return {url:doc.file.url,id:doc.id}
+  .map(function(doc){//deal with alternative formats correctly
+    let url = doc.file.url
+    let ext = path.extname(url)
+    if(!ext){
+      throw new CleanError("Unhandled format")
+    }
+    ext = ext.toLowerCase()
+    if(  handledFormats.indexOf( ext ) === -1 ){
+      if(Object.keys(doc.alternative_formats).length === 0 ){
+        throw new CleanError("Unhandled format, and no alternative formats")
+        
+      }
+      url = doc.alternative_formats.stl_file.url
+      console.log("doc",doc.alternative_formats)
+
+      if(url === null){
+        throw new CleanError("Unhandled format, and no alternative formats")
+      }
+    }
+
+    return {url,id:doc.id}
   })
-  
+
 
 //do the rendering etc
 renderableDocuments$
@@ -90,12 +131,12 @@ renderableDocuments$
   .map(function(doc){
 
     function render(data){
-      let {fileName,outputPath} = data
+      let {fileName, outputPath} = data
       const cmd = `node ./node_modules/jam/dist/jam-headless.js ${outputPath} ${resolution}` 
 
       return run(cmd)
         .flatMapError(e=>throwError("error in  renderer",e))
-        .flatMap(postProcess.bind(null,outputPath))        
+        .flatMapEnd(postProcess.bind(null,outputPath))  
     }
 
     function postProcess(outputPath){
@@ -103,7 +144,7 @@ renderableDocuments$
       let ppCropCmd = `convert ${outputPath}.png -crop +0+1 ${outputPath}.png`
 
       return run(ppCmd)
-        .flatMap(e=>run(ppCropCmd))
+        .flatMapEnd(e=>run(ppCropCmd))
     }
 
     return saveFile(workdir, doc.url, params.fileName)
@@ -112,6 +153,23 @@ renderableDocuments$
       .then(e=>console.log("done"))
        
   })
+  //.flatMapError(error=>most.throwError(error))
   .forEach(e=>e)
-  
+  /*.catch(function(error){
+    console.log("error something",error)
+    throw error
+  })*/
 
+////////////////////////////
+//since we have promises ?
+/*process.on("unhandledRejection", function(promise, reason){
+  console.log("promise",promise,reason)
+})*/
+/*process.on('unhandledRejection', function(reason, p){
+    console.log("Possibly Unhandled Rejection at: Promise ", p, " reason: ", reason)
+    //throw reason
+})
+process.on('rejectionHandled', function(key) {
+    //reportHandled(key);
+    console.log("handled",key)
+})*/
