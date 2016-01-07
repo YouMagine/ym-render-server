@@ -17,6 +17,7 @@
     "fast.js": "^0.1.1",
     "forever": "^0.15.1",
     "jam": "usco/Jam",
+    "most": "^0.17.0",
     "most-subject": "tylors/most-subject",
     "request": "^2.67.0",
     "tmp": "0.0.28",
