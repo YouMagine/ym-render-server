@@ -7,13 +7,14 @@ import bodyParser from 'body-parser'
 import assign from 'fast.js/object/assign'//faster object.assign
 import tmp from 'tmp'
 
+import most from 'most'
 import {run, getArgs} from './src/utils'
 import rmDir from './src/rmDir'
 import {appInPath} from './src/appPath'
 
 function sendBackFile(workdir, response, filePath){
   let fullPath = path.resolve(filePath)
-  console.log("sending back image data",fullPath)
+  //console.log("sending back image data",fullPath)
   let stat = fs.statSync(fullPath)
 
   response.writeHead(200, {
@@ -32,7 +33,7 @@ function sendBackFile(workdir, response, filePath){
   })
 
   response.on('finish', function(){
-    console.log("done with response, removing folder", workdir)
+    //console.log("done with response, removing folder", workdir)
     rmDir(workdir)
   })
 
@@ -107,14 +108,29 @@ app.post('/', function (req, res) {
       })
       .tap(cmd=>console.log("launching",cmd))
       .flatMap(cmd=>run(cmd))
+      .flatMapError(function(error){
+        //console.log("error in launch",error)
+        return most.throwError(error)
+      })
+      /*.observe(function(e){
+        //console.log("progress:",e)
+        return e
+      })*/
       .drain()
       .then(function(e){
-        console.log("done with render",e)
+        //console.log("done with render",e)
         const filePath = `./${workdir.name}/test.stl.png`
         sendBackFile(workdir.name, res, filePath)
       })
       .catch(function(error){
-        console.log("error rendering document",error)
+        console.log(`error rendering design: ${designId} document: ${documentId}`,error)
+        //FIXME: temporary 
+        try 
+        {
+          error = error.replace("Potentially unhandled rejection [1] ",'')
+          error = error.replace("Potentially unhandled rejection [2] ",'')
+        }catch(e){}
+
         res.status(500).send(error)
       })
 
