@@ -6,6 +6,7 @@ import url from 'url'
 import path from 'path'
 
 const exec = require('child_process').exec
+const execSync = require('child_process').execSync
 const spawn = require('child_process').spawn
 
 
@@ -42,17 +43,26 @@ export function makeRequest(uri){
 export function run(cmd){
   const {sink, stream} = Subject()
 
-  exec(cmd, function(error, stdout, stderr) {
-    if(error){
-      console.log("error",error)
-      sink.error(error)
-    }
-    else{
-      sink.add(stdout)
-      sink.end()
-    }
-  }) 
+  let child = exec(cmd)
+  child.stdout.on('data', function(data) {
+    //console.log("stdout",data)
+    sink.add(data)
+  })
+  child.stderr.on('data', function(data) {
+    sink.error(data)
+  })
+  child.on('close', function(code) {
+    sink.end()
+  })
 
+  return stream
+}
+
+export function runSync(cmd){
+  const {sink, stream} = Subject()
+  let result = execSync(cmd)
+  sink.add(result)
+  sinkg.end()
   return stream
 }
 
