@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "forever start launch-server.js",
-    "stop": "forever stop launch-server.js"
+    "stop": "forever stop launch-server.js",
+    "test": "ava --verbose"
   },
   "author": "Mark 'kaosat-dev' Moissette",
   "license": "MIT",
@@ -22,5 +23,9 @@
     "request": "^2.67.0",
     "tmp": "0.0.28",
     "which": "^1.2.0"
+  },
+  "devDependencies": {
+    "ava": "^0.9.1",
+    "image-diff": "^1.3.0"
   }
 }

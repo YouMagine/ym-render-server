@@ -28,12 +28,18 @@ export function getArgs(){
 export function makeRequest(uri){
   const {sink, stream} = Subject()
 
-  request(uri, function (error, response, body) {
+  //{timeout: 1500},
+  
+  request(uri,  function (error, response, body) {
     if (!error && response.statusCode == 200) {
-      sink.add(JSON.parse(body))
+      try{
+        let parsed = JSON.parse(body)
+        sink.add(parsed)
+      }catch(error){sink.error(error)}
     }
     else{
-      console.log("error",error)
+      //console.log("error in request",error)
+      sink.error(error)
     }
   })
   return stream

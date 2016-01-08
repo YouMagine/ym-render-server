@@ -23,14 +23,19 @@ console.log("fetching documents of designs to render")
 let params = getArgs()
 
 
-const apiBaseProdUri = 'api.youmagine.com/v1'
-const apiBaseTestUri = 'api-test.youmagine.com/v1'
+/*const apiBaseProdUri = 'api.youmagine.com/v1'
+const apiBaseTestUri = 'api-test.youmagine.com/v1'*/
 const handledFormats = ['stl']
+
 
 const defaults = {
   resolution:'640x480'
   ,workdir:'./tmp'
   ,designsUri:'https://api.youmagine.com/v1/designs?auth_token=X5Ax97m1YomoFLxtYTzb'
+  ,apiBaseProdUri:'api.youmagine.com/v1'
+  ,apiBaseTestUri:'api-test.youmagine.com/v1'
+  ,urlBase:'https'
+
   
   ,documentId:undefined
   ,designId:undefined
@@ -42,9 +47,11 @@ const defaults = {
 params = assign({},defaults,params)
 
 
-let {workdir, designsUri, resolution, testMode, login, password} = params
+let {workdir, 
+  designsUri, apiBaseProdUri, apiBaseTestUri, urlBase,
+  resolution, 
+  https, testMode, login, password} = params
 
-//console.log("params",params)
 
 designsUri = ["page","limit"].reduce(function(combo,paramName){
     combo += `&${paramName}=${params[paramName]}`
@@ -60,11 +67,12 @@ if (!fs.existsSync(workdir)){
 
 let apiBaseUri = testMode !== undefined ? apiBaseTestUri : apiBaseProdUri
 let authData   = (login !== undefined && password!==undefined) ? (`${login}:${password}@`) : ''
+//console.log("apiBaseProdUri",apiBaseProdUri,apiBaseUri, params)
 
 //start fetching data
 let documents$ = undefined
 if(params.documentId &&  params.designId){
-  let documentsUri = `https://${authData}${apiBaseUri}/designs/${params.designId}/documents/${params.documentId}?auth_token=X5Ax97m1YomoFLxtYTzb`
+  let documentsUri = `${urlBase}://${authData}${apiBaseUri}/designs/${params.designId}/documents/${params.documentId}?auth_token=X5Ax97m1YomoFLxtYTzb`
   documents$ = makeRequest(documentsUri)
 }else{
 
@@ -132,10 +140,15 @@ renderableDocuments$
 
     function render(data){
       let {fileName, outputPath} = data
-      const cmd = `node ./node_modules/jam/dist/jam-headless.js ${outputPath} ${resolution}` 
-
+      const jamPath = path.resolve(__dirname,'./node_modules/jam/dist/jam-headless.js')
+      const cmd = `node ${jamPath}  ${outputPath} ${resolution}` 
+      console.log("running ",cmd)
       return run(cmd)
-        .flatMapError(e=>throwError("error in  renderer",e))
+        .flatMapError(function(e){
+          console.log("error in renderer",e)
+          return throwError(e)
+        })
+        //.flatMapError(e=>throwError("error in  renderer",e))
         .flatMapEnd(postProcess.bind(null,outputPath))  
     }
 
