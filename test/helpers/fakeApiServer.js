@@ -1,55 +1,53 @@
 import fs from 'fs'
 import path from 'path'
 import http from 'http'
+import assign from 'fast.js/object/assign'//faster object.assign
 
-function handleRequest(req, res){
-  //console.log("here in request handler",req.url)
-  if(req.url === "/v1/designs/0/documents/1?auth_token=X5Ax97m1YomoFLxtYTzb"){
-    //console.log("dealing with DOCS")
-    let content = {
-      "id": 36329,
-      "name": "Airplane",
-      "description": null,
-      "file": {
-          "url": "http://localhost:8082/v1/data/model.ply"
-      },
-      "alternative_formats": {
-          "stl_file": {
-              "url": "http://localhost:8082/v1/data/model.stl"
-          },
-      }
-    }
-    content = JSON.stringify(content)
 
-    res.writeHead(200, {
-      'Content-Type': 'application/json'
-      ,'Content-Length': Buffer.byteLength(content)
-    })
-    
-    res.end( content )
-  }
-  else if(req.url === "/v1/data/model.stl"){
-    //console.log("sending back model.stl")
+export function docHandlerHelper(doc, req,res){
+  let content = JSON.stringify(doc)
+  res.writeHead(200, {
+    'Content-Type': 'application/json'
+    ,'Content-Length': Buffer.byteLength(content)
+  })
+  res.end( content )
+}
 
-    let filePath = './input/model.stl'
-    let fullPath = path.resolve(filePath)
-    let stat     = fs.statSync(fullPath)
+function modelHandler(req,res){
+  let filePath = './input/model.stl'
+  let fullPath = path.resolve(filePath)
+  let stat     = fs.statSync(fullPath)
 
-    res.writeHead(200, {
-      'Content-Type': 'application/sla',
-      'Content-Length': stat.size
-    })
-    let readStream = fs.createReadStream(fullPath)
-    readStream.pipe(res)
-  }
+  res.writeHead(200, {
+    'Content-Type': 'application/sla',
+    'Content-Length': stat.size
+  })
+  let readStream = fs.createReadStream(fullPath)
+  readStream.pipe(res)
+}
+
+function handleRequest(handlers, req, res){
+  let url     = req.url
+  let handler = handlers[url]
+  //console.log("url",url, "handler",handler)
+  handler(req,res) 
  
 }
 
-export default function makeServer(PORT, cb){
-  let server = http.createServer(handleRequest)
+export default function makeServer(PORT, cb, handlers={}){
+  let defaultHandlers = {
+    "/v1/data/model.stl":modelHandler
+  }
+  handlers = assign({}, defaultHandlers, handlers)
+
+  let requestHandler = handleRequest.bind(null, handlers)
+  let server = http.createServer(requestHandler)
+
   server.listen(PORT, 'localhost',  function(){
     console.log("Server listening on: http://localhost:%s", PORT)
-    cb()
+    if(cb){
+      cb()
+    }
   })
   return server
 }
