@@ -115,14 +115,15 @@ const renderableDocuments$ =  documents$
     if(!ext){
       throw new CleanError("Unhandled format")
     }
-    ext = ext.toLowerCase()
+    ext = ext.toLowerCase().replace('.','')
+    
     if(  handledFormats.indexOf( ext ) === -1 ){
-      if(Object.keys(doc.alternative_formats).length === 0 ){
+      if(doc.alternative_formats && Object.keys(doc.alternative_formats).length === 0 ){
         throw new CleanError("Unhandled format, and no alternative formats")
         
       }
       url = doc.alternative_formats.stl_file.url
-      console.log("doc",doc.alternative_formats)
+      //console.log("doc",doc.alternative_formats)
 
       if(url === null){
         throw new CleanError("Unhandled format, and no alternative formats")
