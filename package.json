@@ -6,7 +6,7 @@
   "scripts": {
     "start": "forever start launch-server.js",
     "stop": "forever stop launch-server.js",
-    "test": "ava --verbose"
+    "test": "ava --verbose --serial"
   },
   "author": "Mark 'kaosat-dev' Moissette",
   "license": "MIT",
