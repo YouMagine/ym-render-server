@@ -15,12 +15,12 @@ let params = getArgs()
 
 /* const apiBaseProdUri = 'api.youmagine.com/v1'
 const apiBaseTestUri = 'api-test.youmagine.com/v1'*/
-const handledFormats = ['stl']
+const handledFormats = ['stl', '3mf', 'obj']
 
 const defaults = {
   resolution: '640x480',
   workdir: './tmp',
-  designsUri: 'https://api.youmagine.com/v1/designs?auth_token=X5Ax97m1YomoFLxtYTzb',
+  designsUri: 'https://api.youmagine.com/v1/designs?auth_token=LNtu2UMZWccR8YJhTCi7',
   apiBaseProdUri: 'api.youmagine.com/v1',
   apiBaseTestUri: 'api-test.youmagine.com/v1',
   urlBase: 'https',
@@ -54,13 +54,13 @@ let authData = (login !== undefined && password !== undefined) ? (`${login}:${pa
 // start fetching data
 let documents$
 if (params.documentId && params.designId) {
-  let documentsUri = `${urlBase}://${authData}${apiBaseUri}/designs/${params.designId}/documents/${params.documentId}?auth_token=X5Ax97m1YomoFLxtYTzb`
+  let documentsUri = `${urlBase}://${authData}${apiBaseUri}/designs/${params.designId}/documents/${params.documentId}?auth_token=LNtu2UMZWccR8YJhTCi7`
   documents$ = makeRequest(documentsUri)
 } else {
   documents$ = makeRequest(designsUri)
     .flatMap(designs => from(designs)) // array of designs to designs one by one "down the pipe"
     .flatMap(design => { // for each design, request
-      let documentsUri = `https://api.youmagine.com/v1/designs/${design.id}/documents?auth_token=X5Ax97m1YomoFLxtYTzb`
+      let documentsUri = `https://api.youmagine.com/v1/designs/${design.id}/documents?auth_token=LNtu2UMZWccR8YJhTCi7`
       return makeRequest(documentsUri)
     })
     .flatMap(documents => from(documents)) // array of documents to documents one by one "down the pipe"
