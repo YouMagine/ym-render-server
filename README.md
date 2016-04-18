@@ -4,11 +4,11 @@
 
 This includes all the tooling to generate **static images/renders using Jam** :  ie
 
-- a command line tool 
+- a command line tool
 - a web server ( *post* a **design id** + **document id** combo, get a rendered image of that design back)
 - it does **NOT** generate meta data, stats, or any other data
 - it also does **NOT** slice the 3d model, convert them, or make coffee for you: single responsibility, better maintainability
-- it depends on the youmagine V1 api 
+- it depends on the youmagine V1 api
 
 
 ##Installing
@@ -17,7 +17,7 @@ This includes all the tooling to generate **static images/renders using Jam** : 
 
   * go to the nodejs folder
 
-  and type 
+  and type
 
   ```
     npm install
@@ -26,10 +26,10 @@ This includes all the tooling to generate **static images/renders using Jam** : 
 ##Usage
 
 
-#### server mode 
+#### server mode
 
 > Note : default port is 3210
- 
+
 > Also: the `npm start` command will run the server wraped by the forever tool, to ensure continued uptime
 
 
@@ -40,7 +40,7 @@ This includes all the tooling to generate **static images/renders using Jam** : 
   npm start -- port=4242
 ```
 
-##### for testing environments 
+##### for testing environments
 
 ```
   npm start -- testMode=true testMode=true login='xx' password='xx'
@@ -89,5 +89,16 @@ you also have a few parameters to control the output:
 ```
 
 
+##### managing existing running instances
 
+List existing processes
+```
+  node_modules/forever/bin/forever list
+```
 
+Stop given process (with given ID)
+```
+  node_modules/forever/bin/forever stop ID
+```
+
+and then restart the correct one from the working directory using npm run start (see previous instructions)

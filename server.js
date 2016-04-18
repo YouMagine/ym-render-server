@@ -91,8 +91,9 @@ app.post('/', function (req, res) {
     let workdir = tmp.dirSync({template: './tmp/render-XXXXXX'})
     // let workName = tmp.tmpNameSync({ template: 'tmp-XXXXXX.stl' })
     // console.log("workName",workName)
+    const workDirPath = path.resolve(workdir.name)
 
-    const mainCmd = `node launch.js resolution=${resolution} designId=${designId} documentId=${documentId}       ${authData} workdir=${workdir.name} fileName='test.stl'`
+    const mainCmd = `node launch.js resolution=${resolution} designId=${designId} documentId=${documentId} ${authData} workdir="${workDirPath}" `//`
 
     // const cmd = `node launch.js resolution=${resolution} designId=${designId} documentId=${documentId} workdir='./tmp' fileName='test.stl'`
     // RUN THE RENDERING
@@ -114,8 +115,8 @@ app.post('/', function (req, res) {
       .drain()
       .then(function (e) {
         // console.log("done with render",e)
-        const filePath = `./${workdir.name}/test.stl.png`
-        sendBackFile(workdir.name, res, filePath)
+        const filePath = `${workDirPath}/output.png`
+        sendBackFile(workDirPath, res, filePath)
       })
       .catch(function (error) {
         console.log(`error rendering design: ${designId} document: ${documentId}`, error)

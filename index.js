@@ -117,8 +117,13 @@ renderableDocuments$
   .map(function (doc) {
     function render (data) {
       let {fileName, outputPath} = data
+      let sourceDataPath = outputPath
+      let renderOutputPath = path.resolve(path.dirname(outputPath), 'output.png')//`${outputPath}.png`
+
       const jamPath = path.resolve(__dirname, './node_modules/jam/dist/jam-headless.js')
-      const cmd = `node ${jamPath}  ${outputPath} ${resolution}`
+      //const realOutputPath = ${outputPath}
+      console.log('outputPath', sourceDataPath, renderOutputPath)
+      const cmd = `node ${jamPath} ${sourceDataPath} ${resolution} ${renderOutputPath}`
       console.log('running ', cmd)
       return run(cmd)
         .flatMapError(function (e) {
@@ -126,12 +131,12 @@ renderableDocuments$
           return throwError(e)
         })
         // .flatMapError(e=>throwError("error in  renderer",e))
-        .flatMapEnd(postProcess.bind(null, outputPath))
+        .flatMapEnd(postProcess.bind(null, renderOutputPath))
     }
 
-    function postProcess (outputPath) {
-      let ppCmd = `convert ${outputPath}.png -colorspace gray -level-colors "black,#FF0000" -define modulate:colorspace=HSB -modulate 100,200,108 ${outputPath}.png`
-      let ppCropCmd = `convert ${outputPath}.png -crop +0+1 ${outputPath}.png`
+    function postProcess (renderOutputPath) {
+      let ppCmd = `convert ${renderOutputPath} -colorspace gray -level-colors "black,#FF0000" -define modulate:colorspace=HSB -modulate 100,200,108 ${renderOutputPath}`
+      let ppCropCmd = `convert ${renderOutputPath} -crop +0+1 ${renderOutputPath}`
 
       return run(ppCmd)
         .flatMapEnd(e => run(ppCropCmd))

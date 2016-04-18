@@ -7,6 +7,8 @@ const exec = require('child_process').exec
 import makeServer from './helpers/fakeApiServer'
 import { docHandlerHelper } from './helpers/fakeApiServer'
 
+import tmp from 'tmp'
+
 const PORT = 8082
 const fakeApiProdUri = `localhost:${PORT}/v1`
 
@@ -61,7 +63,8 @@ test.before(t => {
 // //////////Now do actual tests
 
 test.cb('renderer cli pipeline (stl available)', t => {
-  const cmd = `node ../launch workdir="./tmp" designId=0 documentId=2 urlBase='http' apiBaseProdUri=${fakeApiProdUri}`
+  const workdir = t.context.workdir
+  const cmd = `node ../launch workdir=${workdir} designId=0 documentId=2 urlBase='http' apiBaseProdUri=${fakeApiProdUri}`
   let child = exec(cmd)
 
   child.stdout.on('data', function (data) {
@@ -73,11 +76,11 @@ test.cb('renderer cli pipeline (stl available)', t => {
 
   child.on('close', function (code) {
     // does the image exist?
-    t.is(fs.existsSync('./tmp/model.stl.png'), true)
+    t.is(fs.existsSync(`${workdir}/output.png`), true)
 
     // is the image the same as we expected?
     imageDiff({
-      actualImage: './tmp/model.stl.png',
+      actualImage: `${workdir}/output.png`,
       expectedImage: './exp/exp.png'
     }, function (err, imagesAreSame) {
       t.is(err, null)
@@ -88,7 +91,9 @@ test.cb('renderer cli pipeline (stl available)', t => {
 })
 
 test.cb('renderer cli pipeline (3mf available)', t => {
-  const cmd = `node ../launch workdir="./tmp" designId=0 documentId=3 urlBase='http' apiBaseProdUri=${fakeApiProdUri}`
+  const workdir = t.context.workdir
+
+  const cmd = `node ../launch workdir="${workdir}" designId=0 documentId=3 urlBase='http' apiBaseProdUri=${fakeApiProdUri}`
   let child = exec(cmd)
 
   child.stdout.on('data', function (data) {
@@ -100,11 +105,11 @@ test.cb('renderer cli pipeline (3mf available)', t => {
 
   child.on('close', function (code) {
     // does the image exist?
-    t.is(fs.existsSync('./tmp/cube_gears.3mf.png'), true)
+    t.is(fs.existsSync(`${workdir}/output.png`), true)
 
     // is the image the same as we expected?
     imageDiff({
-      actualImage: './tmp/cube_gears.3mf.png',
+      actualImage: `${workdir}/output.png`,
       expectedImage: './exp/exp.3mf.png'
     }, function (err, imagesAreSame) {
       t.is(err, null)
@@ -115,16 +120,17 @@ test.cb('renderer cli pipeline (3mf available)', t => {
 })
 
 test.cb('renderer cli pipeline (alternative formats)', t => {
-  const cmd = `node ../launch workdir="./tmp" designId=0 documentId=1 urlBase='http' apiBaseProdUri=${fakeApiProdUri}`
+  const workdir = t.context.workdir
+  const cmd = `node ../launch workdir="${workdir}" designId=0 documentId=1 urlBase='http' apiBaseProdUri=${fakeApiProdUri}`
   let child = exec(cmd)
 
   child.on('close', function (code) {
     // does the image exist?
-    t.is(fs.existsSync('./tmp/model.stl.png'), true)
+    t.is(fs.existsSync(`${workdir}/output.png`), true)
 
     // is the image the same as we expected?
     imageDiff({
-      actualImage: './tmp/model.stl.png',
+      actualImage: `${workdir}/output.png`,
       expectedImage: './exp/exp.png'
     }, function (err, imagesAreSame) {
       t.is(err, null)
@@ -134,13 +140,22 @@ test.cb('renderer cli pipeline (alternative formats)', t => {
   })
 })
 
-test.afterEach(t => {
-  // this runs after each test
-  try{fs.unlinkSync('./tmp/model.stl.png')}catch(e){}
-  try{fs.unlinkSync('./tmp/model.stl')}catch(e){}
-  try{fs.unlinkSync('./tmp/cube_gears.3mf')}catch(e){}
-  try{fs.unlinkSync('./tmp/cube_gears.3mf.png')}catch(e){}
+test.beforeEach(t => {
+  let workdirBase = './tmp'
+  if (!fs.existsSync(workdirBase)) {
+    fs.mkdirSync(workdirBase)
+  }
+  let workdir = tmp.dirSync({template: './tmp/render-XXXXXX'})
+  t.context.workdir = workdir.name
+})
 
+test.afterEach(t => {
+  const workdir = t.context.workdir
+  // this runs after each test
+  try{fs.unlinkSync(`${workdir}/model.stl`)}catch(e){}
+  try{fs.unlinkSync(`${workdir}/cube_gears.3mf`)}catch(e){}
+  try{fs.unlinkSync(`${workdir}/output.png`)}catch(e){}
+  fs.rmdirSync(workdir)
   fs.rmdirSync('./tmp')
 })
 
