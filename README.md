@@ -1,4 +1,4 @@
-#jam-headless-renderer
+#ym-render-server
 
 ## General
 
@@ -9,13 +9,12 @@ This includes all the tooling to generate **static images/renders using Jam** : 
 - it does **NOT** generate meta data, stats, or any other data
 - it also does **NOT** slice the 3d model, convert them, or make coffee for you: single responsibility, better maintainability
 - it depends on the youmagine V1 api
+- it wrapps the actual [headless renderer](https://github.com/usco/usco-headless-renderer) (migration in progress)
 
 
 ##Installing
 
   * clone the repository
-
-  * go to the nodejs folder
 
   and type
 
