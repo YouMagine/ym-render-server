@@ -1,21 +1,17 @@
-// let request = require('request')
-// var open = require("open")
-// open("http://www.google.com")
 import fs from 'fs'
-import assign from 'fast.js/object/assign' // faster object.assign
+import path from 'path'
 import { from, throwError } from 'most'
 
-import path from 'path'
-import { makeRequest, run, saveFile, getArgs } from './src/utils'
+import { run } from './utils/run'
+import { saveFile } from './utils/utils'
+import { getArgs } from './utils/args'
+import { makeRequest } from './utils/makeRequest'
 
 console.log('fetching documents of designs to render')
 
 // ///////deal with command line args etc
 let params = getArgs()
-
-/* const apiBaseProdUri = 'api.youmagine.com/v1'
-const apiBaseTestUri = 'api-test.youmagine.com/v1'*/
-const handledFormats = ['stl', '3mf', 'obj']
+const handledFormats = ['stl', '3mf', 'obj', 'ctm']
 
 const defaults = {
   resolution: '640x480',
@@ -32,7 +28,7 @@ const defaults = {
   login: undefined,
   password: undefined
 }
-params = assign({}, defaults, params)
+params = Object.assign({}, defaults, params)
 
 let {workdir, designsUri, apiBaseProdUri, apiBaseTestUri, urlBase, resolution, https, testMode, login, password} = params
 
@@ -49,7 +45,6 @@ if (!fs.existsSync(workdir)) {
 
 let apiBaseUri = testMode !== undefined ? apiBaseTestUri : apiBaseProdUri
 let authData = (login !== undefined && password !== undefined) ? (`${login}:${password}@`) : ''
-// console.log("apiBaseProdUri",apiBaseProdUri,apiBaseUri, params)
 
 // start fetching data
 let documents$
@@ -69,17 +64,13 @@ if (params.documentId && params.designId) {
 
 function CleanError (msg) {
   Error.call(this)
-
   // By default, V8 limits the stack trace size to 10 frames.
   Error.stackTraceLimit = 1
-
   // Customizing stack traces
   Error.prepareStackTrace = function (err, stack) {
     return ''
   }
-
   Error.captureStackTrace(this)
-
   this.message = msg
   this.name = 'CleanError'
 }
@@ -116,14 +107,14 @@ renderableDocuments$
   .tap(doc => console.log('going to render document', doc))
   .map(function (doc) {
     function render (data) {
-      let {fileName, outputPath} = data
+      let {outputPath} = data
       let sourceDataPath = outputPath
-      let renderOutputPath = path.resolve(path.dirname(outputPath), 'output.png')//`${outputPath}.png`
+      let renderOutputPath = path.resolve(path.dirname(outputPath), 'output.png')
 
-      const jamPath = path.resolve(__dirname, './node_modules/jam/dist/jam-headless.js')
-      //const realOutputPath = ${outputPath}
+      const jamPath = path.resolve(__dirname, '../node_modules/usco-headless-renderer/dist/index.js')
       console.log('outputPath', sourceDataPath, renderOutputPath)
-      const cmd = `node ${jamPath} ${sourceDataPath} ${resolution} ${renderOutputPath}`
+      const cmd = `node ${jamPath} input=${sourceDataPath} output=${renderOutputPath} resolution=${resolution}`
+
       console.log('running ', cmd)
       return run(cmd)
         .flatMapError(function (e) {
@@ -131,7 +122,7 @@ renderableDocuments$
           return throwError(e)
         })
         // .flatMapError(e=>throwError("error in  renderer",e))
-        .flatMapEnd(postProcess.bind(null, renderOutputPath))
+        //.flatMapEnd(postProcess.bind(null, renderOutputPath)) //we do not use post processing anymore
     }
 
     function postProcess (renderOutputPath) {
@@ -149,21 +140,3 @@ renderableDocuments$
   })
   // .flatMapError(error=>most.throwError(error))
   .forEach(e => e)
-  /* .catch(function(error){
-    console.log("error something",error)
-    throw error
-  })*/
-
-  // //////////////////////////
-  // since we have promises ?
-  /* process.on("unhandledRejection", function(promise, reason){
-    console.log("promise",promise,reason)
-  })*/
-  /* process.on('unhandledRejection', function(reason, p){
-      console.log("Possibly Unhandled Rejection at: Promise ", p, " reason: ", reason)
-      //throw reason
-  })
-  process.on('rejectionHandled', function(key) {
-      //reportHandled(key)
-      console.log("handled",key)
-  })*/

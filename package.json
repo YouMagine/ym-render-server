@@ -1,5 +1,5 @@
 {
-  "name": "usco-render-tool",
+  "name": "ym-render-server",
   "version": "0.0.1",
   "description": "",
   "main": "index.js",
@@ -11,17 +11,17 @@
   "author": "Mark 'kaosat-dev' Moissette",
   "license": "MIT",
   "dependencies": {
+    "@most/create": "^2.0.1",
     "babel-core": "^6.2.1",
     "babel-preset-es2015": "^6.1.18",
     "body-parser": "^1.14.1",
     "express": "^4.13.3",
     "fast.js": "^0.1.1",
     "forever": "^0.15.1",
-    "jam": "usco/usco-headless-renderer",
-    "most": "^1.1.1",
-    "most-subject": "tylors/most-subject",
+    "most": "^1.2.1",
     "request": "^2.67.0",
     "tmp": "0.0.28",
+    "usco-headless-renderer": "github:usco/usco-headless-renderer",
     "which": "^1.2.0"
   },
   "devDependencies": {

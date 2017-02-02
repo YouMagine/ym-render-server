@@ -1,2 +1,2 @@
 require('babel-core/register')
-require('./index')
+require('./fetchYMRenderable')
