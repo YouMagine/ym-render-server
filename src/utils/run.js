@@ -5,7 +5,7 @@ export function run (cmd) {
   return create.create((add, end, error) => {
     let child = exec(cmd)
     child.stdout.on('data', function (data) {
-      console.log('stdout', data)
+      // console.log('stdout', data)
       add(data)
     })
     child.stderr.on('data', function (data) {
