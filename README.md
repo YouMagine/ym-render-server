@@ -1,4 +1,4 @@
-#ym-render-server
+# ym-render-server
 
 ## General
 
@@ -11,8 +11,7 @@ This includes all the tooling to generate **static images/renders using Jam** : 
 - it depends on the youmagine V1 api
 - it wrapps the actual [headless renderer](https://github.com/usco/usco-headless-renderer) (migration in progress)
 
-
-##Installing
+## Installing
 
   * clone the repository
 
@@ -22,24 +21,21 @@ This includes all the tooling to generate **static images/renders using Jam** : 
     npm install
   ```
 
-##Usage
+## Usage
 
-
-#### server mode
+### server mode
 
 > Note : default port is 3210
 
 > Also: the `npm start` command will run the server wraped by the forever tool, to ensure continued uptime
 
-
-
-##### for production environments
+#### for production environments
 
 ```
   npm start -- port=4242
 ```
 
-##### for testing environments
+#### for testing environments
 
 ```
   npm start -- testMode=true testMode=true login='xx' password='xx'

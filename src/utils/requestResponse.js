@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import rmDir from './rmDir'
+import rmDir from './rmDir.js'
 
 export function sendBackFile (workdir, response, filePath) {
   let fullPath = path.resolve(filePath)
@@ -13,9 +13,9 @@ export function sendBackFile (workdir, response, filePath) {
   })
 
   let readStream = fs.createReadStream(filePath)
-  /*readStream.on('finish',function(){
+  /* readStream.on('finish',function(){
     console.log("done streaming")
-  })*/ // does not work
+  }) */ // does not work
 
   // Add this to ensure that the file descriptor is closed in case of error.
   response.on('error', function (err) {

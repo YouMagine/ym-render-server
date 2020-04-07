@@ -1,9 +1,8 @@
-import {create} from '@most/create'
-const exec = require('child_process').exec
-const execSync = require('child_process').execSync
+import create from '@most/create'
+import { exec, execSync } from 'child_process'
 
 export function run (cmd) {
-  return create((add, end, error) => {
+  return create.create((add, end, error) => {
     let child = exec(cmd)
     child.stdout.on('data', function (data) {
       // console.log("stdout",data)
@@ -19,7 +18,7 @@ export function run (cmd) {
 }
 
 export function runSync (cmd) {
-  return create((add, end, error) => {
+  return create.create((add, end, error) => {
     let result = execSync(cmd)
     add(result)
     end()

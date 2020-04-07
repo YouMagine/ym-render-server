@@ -1,2 +1,1 @@
-require('babel-core/register')
-require('./fetchYMRenderable')
+import('./fetchYMRenderable.js')

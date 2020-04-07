@@ -5,15 +5,15 @@ import tmp from 'tmp'
 import express from 'express'
 import bodyParser from 'body-parser'
 
-import { throwError } from 'most'
+import most from 'most'
 
-import { getArgs } from './utils/args'
-import { run } from './utils/run'
-import { appInPath } from './utils/appPath'
-import { sendBackFile } from './utils/requestResponse'
+import { getArgs } from './utils/args.js'
+import { run } from './utils/run.js'
+import { appInPath } from './utils/appPath.js'
+import { sendBackFile } from './utils/requestResponse.js'
 
 // setup environemental variables
-//require('env2')(path.resolve(__dirname, '../.env'))
+// require('env2')(path.resolve(__dirname, '../.env'))
 
 // ///////deal with command line args etc
 let params = getArgs()
@@ -22,11 +22,12 @@ const defaults = {
   port: 3210,
   testMode: undefined,
   login: undefined,
-  password: undefined
+  password: undefined,
+  token: undefined
 }
 params = Object.assign({}, defaults, params)
 
-const {port, testMode, login, password} = params
+const { port, testMode, login, password, token } = params
 
 // ///////////////
 // start up server
@@ -39,9 +40,9 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.post('/', function (req, res) {
   if (!req.body) return res.sendStatus(400)
 
-  let {resolution, documentId, designId} = req.body
-  // console.log("req.body",req.body, req.body.documentId, req.body.designId)
-  // console.log("resolution etc",resolution, documentId, designId)
+  let { resolution, documentId, designId } = req.body
+  console.log('req.body', req.body, req.body.documentId, req.body.designId)
+  // console.log('resolution etc', resolution, documentId, designId)
 
   if (documentId && designId) {
     if (!resolution) {
@@ -52,6 +53,9 @@ app.post('/', function (req, res) {
     if (testMode && login && password) {
       authData = `testMode=${testMode} login=${login} password=${password}`
     }
+    if (!testMode) {
+      authData = `token=${token}`
+    }
 
     // dir:'./tmp',prefix:'render',
     let workdirBase = './tmp'
@@ -59,10 +63,11 @@ app.post('/', function (req, res) {
       fs.mkdirSync(workdirBase)
     }
 
-    const workdir = tmp.dirSync({template: './tmp/render-XXXXXX'})
+    const workdir = tmp.dirSync({ template: './tmp/render-XXXXXX' })
     const workDirPath = path.resolve(workdir.name)
     const outputFilePath = `${workDirPath}/output.png`
-    const mainCmd = `node ./src/launch.js resolution=${resolution} designId=${designId} documentId=${documentId} ${authData} workdir="${workDirPath}" `
+    // start the part the uses fetchYMRenderable
+    const mainCmd = `node ./src/fetchYMRenderable.js resolution=${resolution} designId=${designId} documentId=${documentId} ${authData} workdir="${workDirPath}" `
 
     // RUN THE RENDERING
     appInPath('xvfb-run')
@@ -72,7 +77,7 @@ app.post('/', function (req, res) {
       .tap(cmd => console.log('launching', cmd))
       .flatMap(cmd => run(cmd))
       .flatMapError(function (error) {
-        return throwError(error)
+        return most.throwError(error)
       })
       .drain()
       .then(function (e) {
@@ -85,7 +90,7 @@ app.post('/', function (req, res) {
         try {
           error = error.replace('Potentially unhandled rejection [1] ', '')
           error = error.replace('Potentially unhandled rejection [2] ', '')
-        } catch(e) {}
+        } catch (e) {}
 
         res.status(500).send(error)
       })

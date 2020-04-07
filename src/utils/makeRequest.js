@@ -9,23 +9,22 @@ export function makeRequest (uri, options) {
   }
   options = Object.assign({}, optionsDefaults, options)
 
-  //console.log(`making request to ${uri}`)
+  // console.log(`making request to ${uri}`)
   return create((add, end, error) => {
-    request(Object.assign({uri}, options), function (err, response, body) {
+    request(Object.assign({ uri }, options), function (err, response, body) {
       console.log(`recieved answer for ${uri}`)
       // console.log('err', err, body) // , 'response', response, 'body', body)
       // console.log(response.statusCode)
       if (!err && response.statusCode === 200) {
         try {
-          //console.log(body)
+          // console.log(body)
           add(body)
-
-        } catch(err) {
+        } catch (err) {
           console.log('error here')
           error(err)
         }
       } else {
-        console.log('error', err, uri)//response.statusCode, uri)
+        console.log('error', err, uri)// response.statusCode, uri)
         if (!err) {
           err = body
         }

@@ -31,7 +31,7 @@ const defaults = {
   password: undefined
 }
 params = Object.assign({}, defaults, params)
-
+console.log('params', params)
 let {workdir, designsUri, apiBaseProdUri, apiBaseTestUri, urlBase, resolution, https, testMode, login, password, token} = params
 designsUri = `https://${apiBaseProdUri}/designs?auth_token=${token}`
 designsUri = ['page', 'limit'].reduce(function (combo, paramName) {
@@ -51,13 +51,13 @@ let authData = (login !== undefined && password !== undefined) ? (`${login}:${pa
 // start fetching data
 let documents$
 if (params.documentId && params.designId) {
-  let documentsUri = `${urlBase}://${authData}${apiBaseUri}/designs/${params.designId}/documents/${params.documentId}?auth_token=LNtu2UMZWccR8YJhTCi7`
+  let documentsUri = `${urlBase}://${authData}${apiBaseUri}/designs/${params.designId}/documents/${params.documentId}?auth_token=${token}`
   documents$ = makeRequest(documentsUri)
 } else {
   documents$ = makeRequest(designsUri)
     .flatMap(designs => from(designs)) // array of designs to designs one by one "down the pipe"
     .flatMap(design => { // for each design, request
-      let documentsUri = `https://api.youmagine.com/v1/designs/${design.id}/documents?auth_token=LNtu2UMZWccR8YJhTCi7`
+      let documentsUri = `https://${apiBaseProdUri}/designs/${design.id}/documents?auth_token=${token}`
       return makeRequest(documentsUri)
     })
     .flatMap(documents => from(documents)) // array of documents to documents one by one "down the pipe"
