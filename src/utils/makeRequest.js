@@ -1,4 +1,4 @@
-import { create } from '@most/create'
+import create from '@most/create'
 import request from 'request'
 
 export function makeRequest (uri, options) {
@@ -10,7 +10,7 @@ export function makeRequest (uri, options) {
   options = Object.assign({}, optionsDefaults, options)
 
   // console.log(`making request to ${uri}`)
-  return create((add, end, error) => {
+  return create.create((add, end, error) => {
     request(Object.assign({ uri }, options), function (err, response, body) {
       console.log(`recieved answer for ${uri}`)
       // console.log('err', err, body) // , 'response', response, 'body', body)
