@@ -1,2 +1,1 @@
-require('babel-core/register')
-require('./src/server.js')
+import('./src/server.js')

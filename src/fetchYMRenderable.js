@@ -13,10 +13,11 @@ console.log('fetching documents of designs to render')
 let params = getArgs()
 const handledFormats = ['stl', '3mf', 'obj', 'ctm']
 
+const token = 
 const defaults = {
   resolution: '640x480',
   workdir: './tmp',
-  designsUri: 'https://api.youmagine.com/v1/designs?auth_token=LNtu2UMZWccR8YJhTCi7',
+  designsUri: undefined, // 'https://api.youmagine.com/v1/designs?auth_token=LNtu2UMZWccR8YJhTCi7',
   apiBaseProdUri: 'api.youmagine.com/v1',
   apiBaseTestUri: 'api-test.youmagine.com/v1',
   urlBase: 'https',
@@ -25,13 +26,14 @@ const defaults = {
   designId: undefined,
   fileName: undefined,
   testMode: undefined,
+  token: undefined,
   login: undefined,
   password: undefined
 }
 params = Object.assign({}, defaults, params)
 
-let {workdir, designsUri, apiBaseProdUri, apiBaseTestUri, urlBase, resolution, https, testMode, login, password} = params
-
+let {workdir, designsUri, apiBaseProdUri, apiBaseTestUri, urlBase, resolution, https, testMode, login, password, token} = params
+designsUri = `https://${apiBaseProdUri}/designs?auth_token=${token}`
 designsUri = ['page', 'limit'].reduce(function (combo, paramName) {
   combo += `&${paramName}=${params[paramName]}`
   return combo
