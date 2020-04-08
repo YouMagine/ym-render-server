@@ -20,14 +20,11 @@ let params = getArgs()
 
 const defaults = {
   port: 3210,
-  testMode: undefined,
-  login: undefined,
-  password: undefined,
   token: undefined
 }
 params = Object.assign({}, defaults, params)
 
-const { port, testMode, login, password, token } = params
+let { port, token } = params
 
 // ///////////////
 // start up server
@@ -40,7 +37,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.post('/', function (req, res) {
   if (!req.body) return res.sendStatus(400)
 
-  let { resolution, documentId, designId } = req.body
+  let { resolution, documentId, designId, apiBaseUrl, assetBaseUrl } = req.body
   console.log('req.body', req.body, req.body.documentId, req.body.designId)
   // console.log('resolution etc', resolution, documentId, designId)
 
@@ -49,13 +46,7 @@ app.post('/', function (req, res) {
       resolution = '1200x900'
     }
 
-    let authData = ''
-    if (testMode && login && password) {
-      authData = `testMode=${testMode} login=${login} password=${password}`
-    }
-    if (!testMode) {
-      authData = `token=${token || req.body.token || ''}`
-    }
+    token = token || req.body.token || ''
 
     // dir:'./tmp',prefix:'render',
     let workdirBase = './tmp'
@@ -68,7 +59,7 @@ app.post('/', function (req, res) {
     const outputFilePath = `${workDirPath}/output.png`
     // start the part the uses fetchYMRenderable
     // no warning is used to supress node experimental + ESM warnings
-    const mainCmd = `node --no-warnings ./fetchYMRenderable.js resolution=${resolution} designId=${designId} documentId=${documentId} ${authData} workdir="${workDirPath}" `
+    const mainCmd = `node --no-warnings ./fetchYMRenderable.js resolution=${resolution} designId=${designId} documentId=${documentId} token=${token} apiBaseUrl=${apiBaseUrl} assetBaseUrl=${assetBaseUrl} workdir="${workDirPath}" `
 
     // RUN THE RENDERING
     appInPath('xvfb-run')
