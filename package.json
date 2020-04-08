@@ -19,7 +19,7 @@
     "most": "1.8.0",
     "request": "2.88.2",
     "tmp": "0.1.0",
-    "usco-headless-renderer": "file:../usco-headless-renderer",
+    "usco-headless-renderer": "github:usco/usco-headless-renderer",
     "which": "2.0.2"
   },
   "devDependencies": {
