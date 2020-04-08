@@ -1,4 +1,4 @@
-#ym-render-server
+# ym-render-server
 
 ## General
 
@@ -11,8 +11,10 @@ This includes all the tooling to generate **static images/renders using Jam** : 
 - it depends on the youmagine V1 api
 - it wrapps the actual [headless renderer](https://github.com/usco/usco-headless-renderer) (migration in progress)
 
+>NOTE:
+This only works in **Node 13** & above (native es-module support needed) 
 
-##Installing
+## Installing
 
   * clone the repository
 
@@ -22,24 +24,32 @@ This includes all the tooling to generate **static images/renders using Jam** : 
     npm install
   ```
 
-##Usage
+## System dependencies
 
+You also need to install a few packages on your system (needed for headless webgl rendering): for Debian/Ubuntu these are :
+(see usco-headless-renderer for more details)
 
-#### server mode
+- [x] sudo apt-get install pkg-config
+- [x] sudo apt-get install xvfb
+- [x] sudo apt-get install libx11-dev
+- [x] sudo apt-get install libxi-dev
+- [x] sudo apt-get install libgl1-mesa-dev
+
+## Usage
+
+### server mode
 
 > Note : default port is 3210
 
 > Also: the `npm start` command will run the server wraped by the forever tool, to ensure continued uptime
 
-
-
-##### for production environments
+#### for production environments
 
 ```
   npm start -- port=4242
 ```
 
-##### for testing environments
+#### for testing environments
 
 ```
   npm start -- testMode=true testMode=true login='xx' password='xx'

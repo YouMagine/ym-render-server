@@ -2,12 +2,12 @@ import test from 'ava'
 import 'babel-core/register'
 import fs from 'fs'
 import imageDiff from 'image-diff'
-const exec = require('child_process').exec
 
 import makeServer from './helpers/fakeApiServer'
 import { docHandlerHelper } from './helpers/fakeApiServer'
 
 import tmp from 'tmp'
+const exec = require('child_process').exec
 
 const PORT = 8082
 const fakeApiProdUri = `localhost:${PORT}/v1`
@@ -145,16 +145,16 @@ test.beforeEach(t => {
   if (!fs.existsSync(workdirBase)) {
     fs.mkdirSync(workdirBase)
   }
-  let workdir = tmp.dirSync({template: './tmp/render-XXXXXX'})
+  let workdir = tmp.dirSync({ template: './tmp/render-XXXXXX' })
   t.context.workdir = workdir.name
 })
 
 test.afterEach(t => {
   const workdir = t.context.workdir
   // this runs after each test
-  try{fs.unlinkSync(`${workdir}/model.stl`)}catch(e){}
-  try{fs.unlinkSync(`${workdir}/cube_gears.3mf`)}catch(e){}
-  try{fs.unlinkSync(`${workdir}/output.png`)}catch(e){}
+  try { fs.unlinkSync(`${workdir}/model.stl`) } catch (e) {}
+  try { fs.unlinkSync(`${workdir}/cube_gears.3mf`) } catch (e) {}
+  try { fs.unlinkSync(`${workdir}/output.png`) } catch (e) {}
   fs.rmdirSync(workdir)
   fs.rmdirSync('./tmp')
 })

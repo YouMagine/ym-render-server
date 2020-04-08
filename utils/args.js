@@ -1,4 +1,4 @@
-export function getArgs () {
+export const getArgs = () => {
   let args = process.argv.slice(2)
 
   let params = {}

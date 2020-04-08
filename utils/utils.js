@@ -1,15 +1,13 @@
 import request from 'request'
-import { create } from '@most/create'
+import create from '@most/create'
 
 import fs from 'fs'
 import url from 'url'
 import path from 'path'
-const exec = require('child_process').exec
-const execSync = require('child_process').execSync
-const spawn = require('child_process').spawn
+import { exec, spawn } from 'child_process'
 
 export function saveFile (workdir, fileUrl, fileName) {
-  return create((add, end, error) => {
+  return create.create((add, end, error) => {
     try {
       let urlData = url.parse(fileUrl)
 
@@ -29,7 +27,7 @@ export function saveFile (workdir, fileUrl, fileName) {
         error(e)
       })
       file.once('finish', function (e) {
-        add({fileName, outputPath})
+        add({ fileName, outputPath })
         end()
       })
       console.log('here')
@@ -60,7 +58,7 @@ export function download_file_curl (file_url, download_dir) {
   // execute curl using child_process' spawn function
   var curl = spawn('curl', [file_url])
   // add a 'data' event listener for the spawn instance
-  curl.stdout.on('data', function (data) { file.write(data); })
+  curl.stdout.on('data', function (data) { file.write(data) })
   // add an 'end' event listener to close the writeable stream
   curl.stdout.on('end', function (data) {
     file.end()

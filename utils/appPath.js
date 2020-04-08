@@ -1,9 +1,9 @@
-import { of } from 'most'
-import { create } from '@most/create'
+import most from 'most'
+import mcreate from '@most/create'
 import which from 'which'
 
 export default function appPath (appCmd) {
-  return create((add, end, error) => {
+  return mcreate.create((add, end, error) => {
     which(appCmd, function (err, resolvedPath) {
       // console.log("is xvfb-run in path ?",error, resolvedPath)
       // er is returned if no "node" is found on the PATH
@@ -21,5 +21,5 @@ export default function appPath (appCmd) {
 export function appInPath (appCmd) {
   return appPath(appCmd)
     .map(e => true)
-    .flatMapError(e => of(false))
+    .flatMapError(e => most.of(false))
 }

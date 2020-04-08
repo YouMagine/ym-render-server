@@ -1,7 +1,6 @@
 import fs from 'fs'
 import path from 'path'
 import http from 'http'
-import assign from 'fast.js/object/assign' // faster object.assign
 
 export function docHandlerHelper (doc, req, res) {
   let content = JSON.stringify(doc)
@@ -50,7 +49,7 @@ export default function makeServer (PORT, cb, handlers = {}) {
     '/v1/data/model.stl': modelHandler,
     '/v1/data/cube_gears.3mf': model3mfHandler
   }
-  handlers = assign({}, defaultHandlers, handlers)
+  handlers = Object.assign({}, defaultHandlers, handlers)
 
   let requestHandler = handleRequest.bind(null, handlers)
   let server = http.createServer(requestHandler)
