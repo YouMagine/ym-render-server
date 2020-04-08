@@ -6,8 +6,8 @@ import { run } from './utils/run.js'
 import { saveFile } from './utils/utils.js'
 import { getArgs } from './utils/args.js'
 import { makeRequest } from './utils/makeRequest.js'
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { fileURLToPath } from 'url'
+import { dirname } from 'path'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
