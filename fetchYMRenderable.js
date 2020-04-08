@@ -17,7 +17,7 @@ console.log('fetching documents of designs to render')
 let params = getArgs()
 const handledFormats = ['stl', '3mf', 'obj', 'ctm']
 
-console.log('args', params)
+console.log('args in fetchYMRenderable', params)
 // const token =
 const defaults = {
   resolution: '640x480',

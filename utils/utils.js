@@ -30,7 +30,6 @@ export function saveFile (workdir, fileUrl, fileName) {
         add({ fileName, outputPath })
         end()
       })
-      console.log('saving file issue')
     } catch (err) {
       error(err)
     }
