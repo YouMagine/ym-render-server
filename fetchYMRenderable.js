@@ -17,28 +17,24 @@ console.log('fetching documents of designs to render')
 let params = getArgs()
 const handledFormats = ['stl', '3mf', 'obj', 'ctm']
 
-console.log('args', params)
+console.log('args in fetchYMRenderable', params)
 // const token =
 const defaults = {
   resolution: '640x480',
   workdir: './tmp',
-  designsUri: undefined, // 'https://api.youmagine.com/v1/designs?auth_token=LNtu2UMZWccR8YJhTCi7',
-  apiBaseProdUri: 'api.youmagine.com/v1',
-  apiBaseTestUri: 'api-test.youmagine.com/v1',
-  urlBase: 'https',
-
   documentId: undefined,
   designId: undefined,
   fileName: undefined,
-  testMode: undefined,
   token: undefined,
-  login: undefined,
-  password: undefined
+
+  apiBaseUrl: undefined,
+  assetBaseUrl: undefined
 }
 params = Object.assign({}, defaults, params)
 
-let { workdir, designsUri, apiBaseProdUri, apiBaseTestUri, urlBase, resolution, https, testMode, login, password, token } = params
-designsUri = `https://${apiBaseProdUri}/designs?auth_token=${token}`
+let { workdir, resolution, token, apiBaseUrl, assetBaseUrl } = params
+
+let designsUri = `${apiBaseUrl}/designs?auth_token=${token}`
 designsUri = ['page', 'limit'].reduce(function (combo, paramName) {
   combo += `&${paramName}=${params[paramName]}`
   return combo
@@ -50,19 +46,16 @@ if (!fs.existsSync(workdir)) {
   fs.mkdirSync(workdir)
 }
 
-let apiBaseUri = testMode !== undefined ? apiBaseTestUri : apiBaseProdUri
-let authData = (login !== undefined && password !== undefined) ? (`${login}:${password}@`) : ''
-
 // start fetching data
 let documents$
 if (params.documentId && params.designId) {
-  let documentsUri = `${urlBase}://${authData}${apiBaseUri}/designs/${params.designId}/documents/${params.documentId}?auth_token=${token}`
+  let documentsUri = `${apiBaseUrl}/designs/${params.designId}/documents/${params.documentId}?auth_token=${token}`
   documents$ = makeRequest(documentsUri)
 } else {
   documents$ = makeRequest(designsUri)
     .flatMap(designs => most.from(designs)) // array of designs to fetch designs one by one "down the pipe"
     .flatMap(design => { // for each design, request
-      let documentsUri = `https://${apiBaseProdUri}/designs/${design.id}/documents?auth_token=${token}`
+      let documentsUri = `${apiBaseUrl}/designs/${design.id}/documents?auth_token=${token}`
       return makeRequest(documentsUri)
     })
     .flatMap(documents => most.from(documents)) // array of documents to documents one by one "down the pipe"
@@ -106,7 +99,7 @@ const renderableDocuments$ = documents$
     }
     // FIXME: a small workaround for incomplete document urls
     if (!url.includes('http')) {
-      url = `https://www.youmagine.com/${url}`
+      url = `${assetBaseUrl}/${url}`
     }
     return { url, id: doc.id }
   })

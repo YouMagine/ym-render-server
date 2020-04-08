@@ -20,7 +20,6 @@ export function makeRequest (uri, options) {
           // console.log(body)
           add(body)
         } catch (err) {
-          console.log('error here')
           error(err)
         }
       } else {
