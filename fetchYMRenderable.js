@@ -121,7 +121,7 @@ renderableDocuments$
       let renderOutputPath = path.resolve(path.dirname(outputPath), 'output.png')
       // FIXME: actual path
       // '../node_modules/usco-headless-renderer/dist/index.js'
-      const jamPath = path.resolve(__dirname, '../../usco-headless-renderer/src/index.js')
+      const jamPath = path.resolve(__dirname, '../node_modules/usco-headless-renderer/src/index.js')
       // console.log('outputPath', sourceDataPath, renderOutputPath)
       // no warning is used to supress node experimental + ESM warnings
 
