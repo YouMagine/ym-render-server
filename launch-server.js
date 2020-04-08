@@ -68,7 +68,7 @@ app.post('/', function (req, res) {
     const outputFilePath = `${workDirPath}/output.png`
     // start the part the uses fetchYMRenderable
     // no warning is used to supress node experimental + ESM warnings
-    const mainCmd = `node --no-warnings ./src/fetchYMRenderable.js resolution=${resolution} designId=${designId} documentId=${documentId} ${authData} workdir="${workDirPath}" `
+    const mainCmd = `node --no-warnings ./fetchYMRenderable.js resolution=${resolution} designId=${designId} documentId=${documentId} ${authData} workdir="${workDirPath}" `
 
     // RUN THE RENDERING
     appInPath('xvfb-run')
@@ -78,7 +78,6 @@ app.post('/', function (req, res) {
       .tap(cmd => console.log('launching', cmd))
       .flatMap(cmd => run(cmd))
       .flatMapError(function (error) {
-        console.log('whoops', error)
         return most.throwError(error)
       })
       .drain()

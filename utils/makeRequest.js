@@ -30,6 +30,7 @@ export function makeRequest (uri, options) {
         }
         // console.log("error in request",err)
         error(err)
+        throw new Error(`${JSON.stringify(err)} uri: ${uri}`)
       }
     })
   })
