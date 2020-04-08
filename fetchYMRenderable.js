@@ -62,7 +62,7 @@ if (params.documentId && params.designId) {
   documents$ = makeRequest(designsUri)
     .flatMap(designs => most.from(designs)) // array of designs to fetch designs one by one "down the pipe"
     .flatMap(design => { // for each design, request
-      let documentsUri = `https://${apiBaseProdUri}/designs/${design.id}/documents?auth_token=${token}`
+      let documentsUri = `https://${apiBaseUri}/designs/${design.id}/documents?auth_token=${token}`
       return makeRequest(documentsUri)
     })
     .flatMap(documents => most.from(documents)) // array of documents to documents one by one "down the pipe"
@@ -106,7 +106,8 @@ const renderableDocuments$ = documents$
     }
     // FIXME: a small workaround for incomplete document urls
     if (!url.includes('http')) {
-      url = `https://www.youmagine.com/${url}`
+      const prefix = testMode ? `https://test.youmagine.com` : `https://www.youmagine.com`
+      url = `${prefix}/${url}`
     }
     return { url, id: doc.id }
   })
