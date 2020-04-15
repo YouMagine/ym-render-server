@@ -12,7 +12,7 @@ This includes all the tooling to generate **static images/renders using Jam** : 
 - it wrapps the actual [headless renderer](https://github.com/usco/usco-headless-renderer) (migration in progress)
 
 >NOTE:
-This only works in **Node 13** & above (native es-module support needed) 
+This only works in **Node 13** & above (native es-module support needed) (usually via nvm, aka nvm install v13.12.2 at this time)
 
 ## Installing
 
@@ -21,8 +21,10 @@ This only works in **Node 13** & above (native es-module support needed)
   and type
 
   ```
-    npm install
+    npm install --production 
   ```
+
+> Note: prefer the use of the production flag, unless you want to develop on your local machine/ make changes
 
 ## System dependencies
 
@@ -73,13 +75,13 @@ You can stop the server at anytime using
 ####local mode
 
 ```
-  node launch.js
+  node launch-server.js
 ```
 
 on a remote server:
 
 ```
-  xvfb-run -s "-ac -screen 0 1280x1024x24" node launch.js
+  xvfb-run -s "-ac -screen 0 1280x1024x24" node launch-server.js
 ```
 
 
