@@ -11,6 +11,10 @@ import { getArgs } from './utils/args.js'
 import { run } from './utils/run.js'
 import { appInPath } from './utils/appPath.js'
 import { sendBackFile } from './utils/requestResponse.js'
+import { fileURLToPath } from 'url'
+import { dirname } from 'path'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 // setup environemental variables
 // require('env2')(path.resolve(__dirname, '../.env'))
@@ -59,7 +63,8 @@ app.post('/', function (req, res) {
     const outputFilePath = `${workDirPath}/output.png`
     // start the part the uses fetchYMRenderable
     // no warning is used to supress node experimental + ESM warnings
-    const mainCmd = `node --no-warnings ./fetchYMRenderable.js resolution=${resolution} workdir="${workDirPath}" designId=${designId} documentId=${documentId} token=${token} apiBaseUrl=${apiBaseUrl} assetBaseUrl=${assetBaseUrl} `
+    const ymFetchPath = path.resolve(__dirname, './fetchYMRenderable.js')
+    const mainCmd = `node --no-warnings ${ymFetchPath} resolution=${resolution} workdir="${workDirPath}" designId=${designId} documentId=${documentId} token=${token} apiBaseUrl=${apiBaseUrl} assetBaseUrl=${assetBaseUrl} `
 
     // RUN THE RENDERING
     appInPath('xvfb-run')

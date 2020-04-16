@@ -43,26 +43,17 @@ You also need to install a few packages on your system (needed for headless webg
 
 > Note : default port is 3210
 
-> Also: the `npm start` command will run the server wraped by the forever tool, to ensure continued uptime
-
 #### for production environments
 
-```
-  npm start -- port=4242
-```
+Install ***pm2*** globally:
+
+```npm install pm2@latest -g```
+
+then at the root of your home preferable
+
+```pm2 start <PATHTO>/ym-render-server/launch-server.js --name ym-renderer -- port=5252```
 
 #### for testing environments
-
-```
-  npm start -- testMode=true testMode=true login='xx' password='xx'
-```
-
-
-You can stop the server at anytime using
-
-```
-  npm stop
-```
 
 > if you only want to do small tests, you can launch the server without `forever`:
 
@@ -72,7 +63,7 @@ You can stop the server at anytime using
 
 
 ----------
-####local mode
+#### local mode
 
 ```
   node launch-server.js
@@ -104,12 +95,31 @@ you also have a few parameters to control the output:
 
 List existing processes
 ```
-  node_modules/forever/bin/forever list
+  pm2 list
 ```
 
 Stop given process (with given ID)
 ```
-  node_modules/forever/bin/forever stop ID
+  pm2 stop <ID>
 ```
 
-and then restart the correct one from the working directory using npm run start (see previous instructions)
+#### configure auto restart on system reboot
+
+Follow the instructions here https://pm2.keymetrics.io/docs/usage/startup/
+ie: 
+
+```pm2 startup```
+
+copy & paste the instructions
+
+and then
+
+```pm2 save```
+
+all done !
+
+#### automatic cleanup of temporary files
+
+create a crontab entry like this one
+
+0 0 * * 0 find <PATHTO>/tmp/* -mtime +7 -name render-* -type d -prune -exec rm -rf {} \;
