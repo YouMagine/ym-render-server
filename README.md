@@ -90,13 +90,13 @@ you also have a few parameters to control the output:
 ##### batch mode:
 
 ```
-  node launch.js resolution=1024x768 page=1 limit=1 workdir=./foo
+  node launch-server.js resolution=1024x768 page=1 limit=1 workdir=./foo
 ```
 
 ##### design & document mode:
 
 ```
-  node launch.js resolution=1024x768 designId=10890 documentId=1 workdir=./foo
+  node launch-server.js resolution=1024x768 designId=10890 documentId=1 workdir=./foo
 ```
 
 
