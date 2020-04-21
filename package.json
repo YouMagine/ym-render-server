@@ -5,8 +5,6 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "forever start launch-server.js",
-    "stop": "forever stop launch-server.js",
     "test": "ava --verbose --serial"
   },
   "author": "Mark 'kaosat-dev' Moissette",
@@ -15,7 +13,6 @@
     "@most/create": "2.0.1",
     "body-parser": "1.19.0",
     "express": "4.17.1",
-    "forever": "2.0.0",
     "most": "1.8.0",
     "request": "2.88.2",
     "tmp": "0.1.0",
